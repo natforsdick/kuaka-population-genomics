@@ -1,0 +1,5 @@
+# Gitignore
+*.out
+*.err
+*.log
+*.txt
