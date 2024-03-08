@@ -9,6 +9,7 @@
 #SBATCH --output=%x.%j.%a.err
 
 # PARAMS
+# SAMPLE_LIST input text file is a file containing a list of the full file names for R1 reads only
 INDIR=/nesi/nobackup/ga03186/kuaka-pop-gen/data/
 OUTDIR=/nesi/nobackup/ga03186/kuaka-pop-gen/output/02-trimmed/02b-trimgalore/
 SAMPLE_LIST=($(<${INDIR}EXT-fq-list.txt))
