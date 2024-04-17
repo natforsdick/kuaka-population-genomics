@@ -1,0 +1,511 @@
+---
+title: "SNPRelate Kuaka - SNP set strict"
+author: "Nat Forsdick"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document:
+    keep_md: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir = "C:/Users/ForsdickN/OneDrive - MWLR/Documents/WHDP/pop-gen/",echo = TRUE,
+                     dev='pdf', fig.path='figures-strict/', dpi=500, units="in", fig.height=7, fig.width=10, 
+                     cache=TRUE)
+```
+
+## SNPRelate for PCA
+
+```{r install_packages, include=F, eval=F}
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+install.packages("tinytex")
+BiocManager::install("gdsfmt")
+BiocManager::install("SNPRelate")
+BiocManager::install("gdsfmt")
+BiocManager::install("MASS")
+install.packages("pals")
+install.packages("xfun")
+```
+
+```{r libraries, echo=FALSE}
+library(gdsfmt)
+library(SNPRelate)
+library(MASS)
+library('gridExtra')
+library(scales) # allows use of alpha to change plot opacity
+```
+
+```{r session, echo=FALSE}
+sessionInfo()
+
+citation("gdsfmt")
+citation("SNPRelate")
+citation("MASS")
+```
+
+```{r colours}
+
+selected_colours <- c("#009cbd", "#ebb700")
+color.gradient <- function(x, colors=selected_colours, colsteps=100) {
+  return( colorRampPalette(colors) (colsteps) [ findInterval(x,
+                seq(min(x),max(x), length.out=colsteps)) ] )
+}
+x <- c((1:100)^2)
+
+selected_colours2 <- c("#009cbd","#ebb700")
+color.gradient2 <- function(x, colors=selected_colours2, colsteps=10) {
+  return( colorRampPalette(colors) (colsteps) [ findInterval(y,
+                seq(min(y),max(y), length.out=colsteps)) ] )
+}
+y <- c((1:50)^2)
+
+mwlrcolsOG <- c("#009cbd", "#de7c00", "#b7db57", "#64a70b",  "#00c1d5", "#ebb700")
+
+mwlrcols <- c("#64a70b", "#898a8d", "#009cbd")
+```
+
+```{r import_vcfs}
+vcf.strict <- "C:/Users/ForsdickN/OneDrive - MWLR/Documents/WHDP/pop-gen/second-round-analysis/export/Petrel_VariantCalls_5x_coverage_0site_missing_noMinGQ.bcf.recode_0.8LD_VariantCalls-indrem.vcf.recode.vcf"
+
+showfile.gds(closeall=TRUE)
+snpgdsVCF2GDS(vcf.strict, "vcf.strict.gds", method="biallelic.only")
+snpgdsSummary("vcf.strict.gds")
+```
+
+```{r sanity_check}
+# Open the GDS file
+genofile <- snpgdsOpen("vcf.strict.gds")
+
+head(genofile)
+```
+
+```{r get_pop}
+# Get population information
+pop_code <- scan("C:/Users/ForsdickN/OneDrive - MWLR/Documents/WHDP/pop-gen/second-round-analysis/export/corr-map2.txt",
+                 what=character())
+table(pop_code)
+
+# Display the first six values
+head(pop_code)
+
+# Get sample id
+sample.id <- read.gdsn(index.gdsn(genofile, "sample.id"))
+length(sample.id)
+
+
+```
+
+```{r PCA, dev=c('pdf'), fig.path='figures-strict/', ppi=500, units="in", fig.height=5, fig.width=7}
+population <- as.factor(pop_code)
+pca <- snpgdsPCA(genofile, num.thread=4,autosome.only=F)
+
+pca$sample.id
+sample.id.filename <- sub(".*/","",pca$sample.id)
+
+sample.id.filename2 <- sapply(strsplit(sample.id.filename, split= ".", fixed = TRUE), head, 1L)
+#sample.id.filename3 <- sub(".*-","",sample.id.filename2)
+#write.table(sample.id.filename2, file="samp-id-ordered.tsv", col.names = FALSE, row.names=FALSE, sep='\t')
+
+# assume the order of sample IDs is as the same as population codes - but this is not the case due to the EXT individuals...
+cbind(sample.id,sample.id.filename2, pop_code)
+
+# variance proportion (%)
+pc.percent <- pca$varprop*100
+head(round(pc.percent, 2))
+
+# Make the data frame
+tab <- data.frame(sample.id = pca$sample.id,
+    pop = as.factor(pop_code)[match(pca$sample.id, sample.id)],
+    EV1 = pca$eigenvect[,1],    # the first eigenvector
+    EV2 = pca$eigenvect[,2],    # the second eigenvector
+    stringsAsFactors = FALSE)
+
+head(tab$sample.id)
+tail(tab$sample.id)
+head(tab$pop)
+tail(tab$pop)
+
+# Draw
+#?plot
+#plot(tab$EV2, tab$EV1, col=as.integer(tab$pop), 
+#     xlab="eigenvector 2", ylab="eigenvector 1")
+
+plot(tab$EV2, tab$EV1, col=alpha(mwlrcols[tab$pop],0.6), pch=19, 
+     xlab="PC 2", ylab="PC 1")
+legend("topleft", legend=levels(tab$pop), 
+       pch=19, col=mwlrcols[1:nlevels(tab$pop)])
+
+tab
+
+
+plot(tab$EV2, tab$EV1, col=alpha(mwlrcols[tab$pop],0.6), pch=19, 
+     xlab="PC 2", ylab="PC 1")
+legend("topleft", legend=levels(tab$pop), 
+       pch=19, col=mwlrcols[1:nlevels(tab$pop)])
+text(x=pca$eigenvect[,2], y=pca$eigenvect[,1], labels=sample.id.filename2,pos=1, offset=-1)
+
+lbls <- paste("PC", 1:5, "\n", format(pc.percent[1:5], 
+                                      digits=2), "%", sep="")
+pairs(pca$eigenvect[,1:5], col=alpha(mwlrcols[tab$pop],0.6), pch=19, labels=lbls)
+
+lbls <- paste("PC", 1:2, "\n", format(pc.percent[1:2], 
+                                      digits=2), "%", sep="")
+pairs(pca$eigenvect[,1:2], col=alpha(mwlrcols[tab$pop],0.6), pch=19, labels=lbls)
+
+
+```
+
+Parallel coordinates plot for the top principal components:
+
+```{r top_PCs, dev=c('pdf'), fig.path='figures-strict/', ppi=500, units="in", fig.height=5, fig.width=7}
+datpop <- factor(pop_code)[match(pca$sample.id, sample.id)]
+parcoord(pca$eigenvect[,1:16], col=alpha(y[datpop],0.4))
+```
+
+To calculate the SNP correlations between eigenvectors and SNP genotypes:
+
+```{r get_corr, dev=c('pdf'), fig.path='figures-strict/', ppi=500, units="in", fig.height=5, fig.width=7, eval=FALSE}
+
+# Get chromosome index
+chr <- read.gdsn(index.gdsn(genofile, "snp.chromosome"))
+CORR <- snpgdsPCACorr(pca, genofile, eig.which=1:4)
+
+savepar <- par(mfrow=c(2,1), mai=c(0.45, 0.55, 0.1, 0.25))
+
+for (i in 1:2)
+{
+    plot(abs(CORR$snpcorr[i,]), ylim=c(0,1), xlab="",
+         ylab=paste("PC", i),
+         col=1:length(chr), pch="+")
+}
+```
+
+Can also do Weir-Cockerham Fst
+
+```{r fst}
+# Two populations: HCB and JPT
+flag <- pop_code %in% c("CDP", "WHDP")
+
+samp.sel <- sample.id[flag]
+pop.sel <- pop_code[flag]
+v <- snpgdsFst(genofile, sample.id=samp.sel, population=as.factor(pop.sel),
+    method="W&C84", autosome.only=F)
+
+# Weir and Cockerham weighted Fst estimate
+v$Fst 
+# Weir and Cockerham mean Fst estimate
+v$MeanFst    
+summary(v$FstSNP)
+```
+
+
+```{r MI_relatedness,include=F,eval=F,echo=F}
+CDP.id <- sample.id[pop_code %in% c("CDP")]
+
+ibd <- snpgdsIBDMoM(genofile, sample.id=CDP.id,
+    maf=0.05, missing.rate=0.05, num.thread=4, autosome.only=F)
+
+ibd.coeff <- snpgdsIBDSelection(ibd)
+head(ibd.coeff)
+
+plot(ibd.coeff$k0, ibd.coeff$k1, xlim=c(0,1), ylim=c(0,1),
+    xlab="k0", ylab="k1", main="CDP samples (MoM)")
+lines(c(0,1), c(1,0), col="#de7c00", lty=2)
+```
+
+
+```{r SR_relatedness,include=F,eval=F,echo=F}
+WHDP.id <- sample.id[pop_code %in% c("WHDP")]
+ibd <- snpgdsIBDMoM(genofile, sample.id=WHDP.id,
+    maf=0.05, missing.rate=0.05, num.thread=4, autosome.only=F)
+
+ibd.coeff <- snpgdsIBDSelection(ibd)
+head(ibd.coeff)
+ibd.coeff
+
+plot(ibd.coeff$k0, ibd.coeff$k1, xlim=c(0,1), ylim=c(0,1),
+    xlab="k0", ylab="k1", main="Kuaka (MoM)")
+lines(c(0,1), c(1,0), col="#de7c00", lty=2)
+```
+
+Now we can assess relatedness using a method-of-moments approach, first for CDP:
+
+```{r MI_relatedness_nofilt, dev=c('pdf'), fig.path='figures-strict/', ppi=500, units="in", fig.height=5, fig.width=7}
+CDP.id <- sample.id[pop_code %in% c("CDP")]
+ibd <- snpgdsIBDMoM(genofile, sample.id=CDP.id,
+     num.thread=4, autosome.only=F)
+
+ibd.coeff <- snpgdsIBDSelection(ibd)
+head(ibd.coeff)
+
+plot(ibd.coeff$k0, ibd.coeff$k1, xlim=c(0,1), ylim=c(0,1),
+    xlab="k0", ylab="k1", main="CDP samples (MoM)")
+lines(c(0,1), c(1,0), col="#de7c00", lty=2)
+```
+
+And then for WHDP:
+
+```{r SR_relatedness_nofilt, dev=c('pdf'), fig.path='figures-strict/', ppi=500, units="in", fig.height=5, fig.width=7}
+WHDP.id <- sample.id[pop_code %in% c("WHDP")]
+ibd <- snpgdsIBDMoM(genofile, sample.id=WHDP.id,
+    num.thread=4, autosome.only=F)
+
+ibd.coeff <- snpgdsIBDSelection(ibd)
+head(ibd.coeff)
+
+plot(ibd.coeff$k0, ibd.coeff$k1, xlim=c(0,1), ylim=c(0,1),
+    xlab="k0", ylab="k1", main="Diving petrels (MoM)")
+lines(c(0,1), c(1,0), col="#de7c00", lty=2)
+```
+
+We can then look at all individuals together:
+
+```{r all_relatedness_nofilt, dev=c('pdf'), fig.path='figures-strict/', ppi=500, units="in", fig.height=5, fig.width=7}
+ibd <- snpgdsIBDMoM(genofile, sample.id=sample.id,
+    num.thread=4, autosome.only=F)
+
+ibd.coeff <- snpgdsIBDSelection(ibd)
+head(ibd.coeff)
+
+plot(ibd.coeff$k0, ibd.coeff$k1, 
+     xlim=c(0,1), ylim=c(0,1),col=alpha(mwlrcols[tab$pop],0.4),pch=19,
+     xlab="k0", ylab="k1", main="All samples (MoM)")
+lines(c(0,1), c(1,0), col="#de7c00", lty=2)
+```
+Then we can look at identity-by-state:
+
+```{r Identity-by-state, dev=c('pdf'), fig.path='figures-strict/', ppi=500, units="in", fig.height=5, fig.width=7}
+ibs <- snpgdsIBS(genofile, num.thread=2, autosome.only=F)
+
+pop.idx <- order(pop_code)
+
+image(ibs$ibs[pop.idx, pop.idx], col=color.gradient(x))
+#image(ibs$ibs[pop.idx, pop.idx], col=terrain.colors(16))
+```
+To perform multidimensional scaling analysis on the n×n matrix of genome-wide IBS pairwise distances:
+
+```{r mdsa, dev=c('pdf'), fig.path='figures-strict/', ppi=500, units="in", fig.height=5, fig.width=7}
+palette(mwlrcols)
+loc <- cmdscale(1 - ibs$ibs, k = 2)
+x <- loc[, 1]; y <- loc[, 2]
+popn <- as.factor(pop_code)
+
+plot(x, y, xlab = "", ylab = "", col=alpha(mwlrcols[popn],0.4),pch=19,
+    main = "Multidimensional Scaling Analysis (IBS)")
+legend("topleft", legend=levels(popn), text.col=1:nlevels(popn))
+```
+To perform cluster analysis on the n×n matrix of genome-wide IBS pairwise distances, and determine the groups by a permutation score:
+
+```{r cluster, dev=c('pdf'), fig.path='figures-strict/', ppi=500, units="in", fig.height=7, fig.width=8}
+set.seed(100)
+ibs.hc <- snpgdsHCluster(snpgdsIBS(genofile,
+                                   num.thread=2,autosome.only = F))
+
+# Determine groups of individuals automatically
+rv <- snpgdsCutTree(ibs.hc)
+#rv
+plot(rv$dendrogram, leaflab="none", main="HapMap Phase II")
+plot(rv$dendrogram, main="HapMap Phase II", horiz = TRUE)
+
+table(rv$samp.group)
+
+# Determine groups of individuals by population information
+rv2 <- snpgdsCutTree(na.omit(ibs.hc, samp.group=as.factor(pop_code)))
+
+plot(rv2$dendrogram, leaflab="none", main="HapMap Phase II", col=alpha(mwlrcols[popn]),pch=19,)
+legend("topleft", legend=levels(popn), col=1:nlevels(popn), 
+       pch=19, ncol=4)
+```
+
+```{r close, echo=F}
+# Close the GDS file
+snpgdsClose(genofile)
+```
+
+Comparing with results of Plink's inbuilt PCA analysis. Here we just plot the eigenvectors. 
+
+```{r PLINKPCA}
+
+pca1 <- read.table("./second-round-analysis/export/Petrel_VariantCalls_5x_coverage_0.1site_missing_MinGQ10.bcf.recode_0.4LD_VariantCalls.eigenvec", sep=" ", header=F)
+
+plot(data=pca1, V3~V4)
+```
+
+We also generated some stats from vcftools. Let's plot these here too.
+
+```{r pi, dev=c('pdf'), fig.path='figures-strict/', ppi=500, units="in", fig.height=5, fig.width=7}
+pi.WHDP <- read.table("./second-round-analysis/export/Petrel_VariantCalls_5x_coverage_0site_missing_MinGQ10.bcf.recode_0.8LD_VariantCalls-WHDP-pi.sites.pi", header=TRUE)
+#head(pi.WHDP)
+pi.WHDP$popn <- "Kuaka"
+
+pi.CDP <- read.table("./second-round-analysis/export/Petrel_VariantCalls_5x_coverage_0.1site_missing_MinGQ10.bcf.recode_0.4LD_VariantCalls-CDP-pi.sites.pi", header=TRUE)
+pi.CDP$popn <- "CDP"
+#head(pi.CDP)
+pi.all.popn <- rbind(pi.CDP, pi.WHDP)
+#head(pi.all.popn)
+#summary(pi.all.popn)
+tapply(pi.all.popn$PI, pi.all.popn$popn, summary)
+
+boxplot(pi.all.popn$PI~pi.all.popn$popn, ylab="nucleotide diversity", xlab="species", col=mwlrcols)
+```
+
+Summary stats for pi overall:
+
+```{r pi-all}
+summary(pi.all.popn$PI)
+
+tapply(pi.all.popn$PI, pi.all.popn$popn, summary)
+```
+
+What about looking at pi along particular scaffolds? Would be good to do down the track, but not useful until genome is a bit spruced up.
+
+```{r pi-by-pos, eval=FALSE}
+#Now let’s look at π along chromosome 12. To do this, lets first make a subset of the pi.all object:
+
+pi.chr12 <- subset(taj.all, chr = "chr12")
+#This command means, take the subset of lines in the pi.all object, where the chr column is equal to chr12.
+
+#Try using using the commands below to see what you have done.
+
+#find out how many rows your objects have
+nrow(pi.chr12)
+nrow(pi.all)
+
+#see thr first and last lines
+head(pi.chr12)
+head(pi.all)
+
+tail(pi.chr12)
+tail(pi.all)
+
+#see a summary of the data frame
+summary(pi.chr12)
+summary(pi.all)
+#Now, lets make the plot.
+
+#Let’s can plot the π value (on the y axis) against the position on the chromosome along the x axis. The position is in the column of the pi.chr12 data frame called mid. We plot like so:
+
+plot(pi.chr12$mid,pi.chr12$pi,xlab="position",ylab="diversity")
+```
+
+```{r tajD, dev=c('pdf'), fig.path='figures-strict/', ppi=500, units="in", fig.height=5, fig.width=7}
+taj.all <- read.table("./second-round-analysis/export/Petrel_VariantCalls_5x_coverage_0.1site_missing_MinGQ10.bcf.recode_0.4LD_VariantCalls_10kb.Tajima.D", header=TRUE)
+
+hist(taj.all$TajimaD,br=20)
+
+taj.WHDP <- read.table("./export/Petrel_VariantCalls_5x_coverage_0.1site_missing_MinGQ10.bcf.recode_0.4LD_VariantCalls-WHDP.Tajima.D", header=TRUE)
+#head(pi.WHDP)
+taj.WHDP$popn <- "Kuaka"
+
+taj.CDP <- read.table("./export/Petrel_VariantCalls_5x_coverage_0.1site_missing_MinGQ10.bcf.recode_0.4LD_VariantCalls-CDP.Tajima.D", header=TRUE)
+taj.CDP$popn <- "CDP"
+#head(pi.CDP)
+taj.all.popn <- rbind(taj.CDP, taj.WHDP)
+
+library(ggplot2)
+ggplot(taj.all.popn, aes(x = TajimaD)) +
+  geom_histogram(aes(color = popn, fill = popn), 
+                position = "identity", bins = 30, alpha = 0.4) +
+  scale_color_manual(values = c("#00AFBB", "#E7B800")) +
+  scale_fill_manual(values = c("#00AFBB", "#E7B800"))
+```
+
+```{r fstAll, dev=c('pdf'), fig.path='figures-strict/', ppi=500, units="in", fig.height=5, fig.width=7}
+fst.all <- read.table("./export/Petrel_VariantCalls_5x_coverage_0.1site_missing_MinGQ10.bcf.recode_0.4LD_VariantCalls-WHDP_vs_CDP_FST.weir.fst", header=TRUE)
+
+head(fst.all)
+hist(fst.all$WEIR_AND_COCKERHAM_FST, br=20)
+
+```
+
+
+## Adegenet
+
+After a bit of wrangling with vcfR, I got adegenet to work
+
+```{r adegenet}
+#install.packages("vcfR")
+#install.packages("adegenet")
+library(vcfR)
+library(adegenet)
+
+x <- read.vcfR("C:/Users/ForsdickN/OneDrive - MWLR/Documents/WHDP/pop-gen/second-round-analysis/export/Petrel_VariantCalls_5x_coverage_0site_missing_noMinGQ.bcf.recode_0.8LD_VariantCalls-indrem.vcf.recode.vcf", verbose=F)
+y <- vcfR2genind(x, ploidy=2, return.alleles=TRUE)
+names(y)
+
+pop_code <- scan("C:/Users/ForsdickN/OneDrive - MWLR/Documents/WHDP/pop-gen/second-round-analysis/export/corr-map2.txt",
+                 what=character())
+y@pop
+y@pop <- as.factor(pop_code)
+y@pop
+```
+
+Now we have the inputs loaded and are begin testing the analysis. First let's max out our PCs and set 2 expected clusters. How do our individuals group?
+
+```{r prelimDAPC, dev=c('pdf'), fig.path='figures-strict/', ppi=500, units="in", fig.height=7, fig.width=10}
+grp <- find.clusters(y, max.n.= 30, n.pca=70, n.clust=2)
+#head(grp$grp, 10)
+grp$size
+head(grp$grp)
+table(pop(y), grp$grp)
+dapc1 <- dapc(y,grp$grp, n.pca = 15, n.da= 3)
+
+table.value(table(pop(y), grp$grp), col.lab=paste("inf", 1:3),
+row.lab=paste("ori", 1:3))
+
+scatter(dapc1, scree.da=FALSE, scree.pca=TRUE, posi.pca="topleft", legend=TRUE, solid=0.5, bg="white", col=mwlrcols, clab=0)
+
+summary(dapc1)
+
+# unfortunately there's no argument to dictate the individual labels for assignplot().
+assignplot(dapc1)
+
+compoplot(dapc1, posi="bottomright", txt.leg=paste("Cluster", 1:2), lab="", col=mwlrcols, xlab="individuals")
+```
+
+Now let's do the optimisation - first a-scores, and then cross-validation
+
+```{r DAPC, dev=c('pdf'), fig.path='figures-strict/', ppi=500, units="in", fig.height=7, fig.width=10}
+
+
+# optimising the a-score
+dapc2 <- dapc(y, n.da=5, n.pca=70)
+temp <- optim.a.score(dapc2)
+
+
+dapc3 <- dapc(y, n.da=5, n.pca=5)
+
+compoplot(dapc3, lab="", posi=list(x=12,y=-.01), cleg=.7, col=mwlrcols)
+
+
+temp <- which(apply(dapc3$posterior,1, function(e) all(e<0.5)))
+temp
+
+# cross-validation
+mat <- tab(y, NA.method="mean")
+grp <- pop(y)
+xval <- xvalDapc(mat, grp, n.pca.max = 70, training.set = 0.9,
+result = "groupMean", center = TRUE, scale = FALSE,
+n.pca = NULL, n.rep = 30, xval.plot = TRUE)
+
+xval[2:6]
+```
+
+Now using the best values based on a-scores and cross-validation to run the final DAPC.
+
+```{r DAPCfinal, dev=c('pdf'), fig.path='figures-strict/', ppi=500, units="in", fig.height=7, fig.width=10}
+dapc4 <- dapc(y, n.da=3, n.pca=5)
+dapc4
+mwlrcols <- c("#64a70b", "#ffa400", "#009cbd")
+scatter(dapc4, scree.da=TRUE, scree.pca=TRUE, posi.pca="bottomleft", posi.da = "bottomright", legend=TRUE, solid=0.5, bg="white", col=mwlrcols, clab=0, cex = 4, ratio.da = 0.3, ratio.pca=0.3, cleg=1.5)
+?scatter.dapc()
+compoplot(dapc4, lab="", posi=list(x=12,y=-.01), cleg=.7, col=mwlrcols)
+
+
+dapc5 <- dapc(y, n.da=2, n.pca=5)
+dapc5
+mwlrcols <- c("#64a70b", "#ffa400", "#009cbd")
+scatter(dapc5, scree.da=TRUE, scree.pca=TRUE, posi.pca="bottomleft", posi.da = "bottomright", legend=TRUE, solid=0.5, bg="white", col=mwlrcols, clab=0, cex = 4, ratio.da = 0.3, ratio.pca=0.3, cleg=1.5)
+?scatter.dapc()
+compoplot(dapc5, lab="", posi=list(x=12,y=-.01), cleg=.7, col=mwlrcols)
+```

@@ -1,0 +1,281 @@
+---
+title: "WHDP-pop-gen"
+output: html_document
+date: "2023-04-18"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 8, fig.height = 5, ppi=200)
+```
+
+```{r packages}
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+```
+
+Import data
+
+```{r import}
+#popGenStats <- read.table("./first-round-analysis/raw-data-QC/pop-gen-stats-all.txt", header = TRUE)
+popGenStats <- read.csv("C:/Users/ForsdickN/OneDrive - MWLR/Documents/WHDP/pop-gen/2023-09-14-kuaka-pop-gen-stats.csv", header = TRUE, stringsAsFactors = FALSE)
+```
+
+Data overview
+
+```{r overview}
+#head(popGenStats)
+#str(popGenStats)
+summary(popGenStats)
+plot(popGenStats$TotalRawReads)
+```
+
+```{r stats}
+group_by(popGenStats, Species) %>%
+  summarise(
+    count = n(),
+    "Mean raw reads" = mean(TotalRawReads, na.rm = TRUE),
+    sd = sd(TotalRawReads, na.rm = TRUE),
+    median = median(TotalRawReads, na.rm = TRUE),
+    IQR = IQR(TotalRawReads, na.rm = TRUE)
+  )
+
+group_by(popGenStats, Sex) %>%
+  summarise(
+    count = n(),
+    "Mean raw reads" = mean(TotalRawReads, na.rm = TRUE),
+    sd = sd(TotalRawReads, na.rm = TRUE),
+    median = median(TotalRawReads, na.rm = TRUE),
+    IQR = IQR(TotalRawReads, na.rm = TRUE)
+  )
+
+library(ggpubr)
+
+sex.colours <- c(M="#00AFBB", F="#F20205")
+
+ggboxplot(popGenStats, x = "Sex", y = "TotalRawReads", 
+          color = "Sex", palette = sex.colours,
+        ylab = "Mean raw reads", xlab = "Sex")
+```
+
+Both sets of groups are independent samples
+Test whether data are normally distributed
+
+```{r stats2}
+
+with(popGenStats, shapiro.test(TotalRawReads[Sex == "M"]))
+with(popGenStats, shapiro.test(TotalRawReads[Sex == "F"]))
+
+var.test(TotalRawReads ~ Sex, data = popGenStats)
+
+```
+
+Hm, so the results of the Shapiro-Wilk test for normality indicates that the male raw reads are not normally distributed (we reject the null hypothesis). This indicates we should use a non-parametric two-sample Wilcoxon rank test to assess the difference in means between groups. The F-test for homogeneity of variances indicates that the true ratio of variances is not equal to one. So we should do a two-sample Wilcoxon test.
+
+```{r wilcoxon}
+wilcox.test(TotalRawReads ~ Sex, data = popGenStats,
+                   exact = FALSE)
+
+```
+
+With the significance level set to alpha = 0.05, we can conclude that there is no significant difference between sexes in terms of the total raw reads produced. 
+
+Now let's consider for Species levels. 
+
+```{r stats3}
+group_by(popGenStats, Species) %>%
+  summarise(
+    count = n(),
+    "Mean raw reads" = mean(TotalRawReads, na.rm = TRUE),
+    sd = sd(TotalRawReads, na.rm = TRUE),
+    median = median(TotalRawReads, na.rm = TRUE),
+    IQR = IQR(TotalRawReads, na.rm = TRUE)
+  )
+
+species.colours <- c(CDP = "#64a70b", WHDP = "#E7B800")
+
+ggboxplot(popGenStats, x = "Species", y = "TotalRawReads", 
+          color = "Species", palette = species.colours,
+        ylab = "Mean raw reads", xlab = "Species")
+
+with(popGenStats, shapiro.test(TotalRawReads[Species == "WHDP"]))
+
+with(popGenStats, shapiro.test(TotalRawReads[Species == "CDP"]))
+
+kruskal.test(TotalRawReads ~ Species, data = popGenStats)
+
+pairwise.wilcox.test(popGenStats$TotalRawReads, popGenStats$Species,
+                 p.adjust.method = "BH")
+```
+
+The results of the Shapiro-Wilk test indicates non-normality of the data by species groups. The results of the Kruskall-Wallis rank sum test (and the Pairwise Wilcoxon rank sum exact test) indicate there is no significant difference in total raw sequences means between species.
+
+Now let's exclude the hybrid and NAs, and test for difference as we did for 'sex' above.
+
+```{r stats4}
+no_hyb <- group_by(popGenStats, Species) %>%
+  filter(Species != "WHDPxCDP") %>%
+  na.omit()
+
+group_by(no_hyb, Species) %>%  
+  summarise(
+    count = n(),
+    "Mean raw reads" = mean(TotalRawReads, na.rm = TRUE),
+    sd = sd(TotalRawReads, na.rm = TRUE),
+    median = median(TotalRawReads, na.rm = TRUE),
+    IQR = IQR(TotalRawReads, na.rm = TRUE)
+  )
+
+with(no_hyb, shapiro.test(TotalRawReads[Species == "WHDP"]))
+with(no_hyb, shapiro.test(TotalRawReads[Species == "CDP"]))
+
+var.test(TotalRawReads ~ Species, data = no_hyb)
+
+```
+
+The results of the Shapiro-Wilk test for normality indicates that the total raw reads are not normally distributed for either species (we reject the null hypothesis). The F-test for homogeneity of variances indicates that the true ratio of variances is not equal to one. This indicates we should use a non-parametric two-sample Wilcoxon rank test to assess the difference in means between groups. 
+
+```{r stats5}
+wilcox.test(TotalRawReads ~ Species, data = no_hyb,
+                   exact = FALSE)
+```
+
+The results of the two-sample Wilcoxon rank sum test find no significant difference in mean raw reads between species.
+
+Would it be useful to do these tests for the trimmed filtered data, or for the mapped data? Mapped data yes, for species.
+
+```{r stats6}
+group_by(no_hyb, Species) %>%  
+  summarise(
+    count = n(),
+    "Percent mapped" = mean(PercentMapped, na.rm = TRUE),
+    sd = sd(PercentMapped, na.rm = TRUE),
+    median = median(PercentMapped, na.rm = TRUE),
+    IQR = IQR(PercentMapped, na.rm = TRUE)
+  )
+
+is_outlier <- function(x) {
+  return(x < quantile(x, 0.25) - 1.5 * IQR(x) | x > quantile(x, 0.75) + 1.5 * IQR(x))
+}
+
+no_hyb %>%
+  group_by(Species) %>%
+  mutate(outlier = ifelse(is_outlier(PercentMapped), Individual_ID, as.numeric(NA))) %>%
+  ggplot(., aes(x = factor(Species), y = PercentMapped, fill=Species)) +
+    geom_boxplot() +
+    geom_text(aes(label = outlier), na.rm = TRUE, hjust = -0.3) +
+  labs(x="Species", y="% mapped") +
+  scale_fill_manual(values=species.colours)
+
+with(no_hyb, shapiro.test(PercentMapped[Species == "WHDP"]))
+with(no_hyb, shapiro.test(PercentMapped[Species == "CDP"]))
+
+var.test(PercentMapped ~ Species, data = no_hyb)
+
+```
+
+```{r stats7}
+wilcox.test(PercentMapped ~ Species, data = no_hyb,
+                   exact = FALSE)
+```
+
+Plot total sequences per individual, first coloured by Species, then by sex, just to check whether there are any particular patterns there. 
+
+```{r plotSeq}
+ggplot(popGenStats, aes(x=Individual_ID, y=TotalRawReads, col=Species)) +
+  geom_point() +
+  labs(x="Individual", y="Total raw sequences") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1))+
+  scale_color_manual(values=species.colours)
+
+ggplot(popGenStats, aes(x=Individual_ID, y=TotalRawReads, col=Sex)) +
+  geom_point() +
+  labs(x="Individual", y="Total raw sequences") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1))+
+  scale_color_manual(values=sex.colours)
+
+
+```
+
+Now we can plot coverage, and indicate a lower cut-off of 5X.
+
+```{r plotCov}
+ggplot(popGenStats, aes(x=Individual_ID, y=RawCoverage, col=Species)) +
+  geom_point()  +
+  labs(x="Individual", y="Estimated raw coverage (genome = 1.3 Gb)") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
+  geom_hline(yintercept = 5, col=2)+
+  scale_color_manual(values=species.colours)
+```
+
+Let's also check the results following trimming and filtering.
+
+```{r plotTrimmed}
+ggplot(popGenStats, aes(x=Individual_ID, y=EstimatedTrimmedCoverage, col=Species)) +
+  geom_point()  +
+  labs(x="Individual", y="Estimated trimmed coverage (genome = 1.3 Gb)") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
+  geom_hline(yintercept = 5, col=2)+
+  scale_color_manual(values=species.colours)
+```
+
+Now let's check the mapping stats:
+
+```{r plotMapped}
+ggplot(popGenStats, aes(x=Individual_ID, y=PercentMapped, col=Species)) +
+  geom_point()  +
+  labs(x="Individual", y="% mapped") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1)) +
+  ylim(0,100)+
+  scale_color_manual(values=species.colours)
+
+
+ggplot(popGenStats, aes(x=Individual_ID, y=Mapped, col=Species)) +
+  geom_point()  +
+  labs(x="Individual", y="Total reads mapped") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1))+
+  scale_color_manual(values=species.colours)
+```
+
+## Variant calling
+
+Now let's examine the sets of variant calls. 
+
+```{r importVar}
+#popGenStats <- read.table("./raw-data-QC/pop-gen-stats-all.txt", header = TRUE)
+varStats <- read.csv("C:/Users/ForsdickN/OneDrive - MWLR/Documents/WHDP/pop-gen/2023-09-14-variant-calling-stats.csv", header = TRUE, stringsAsFactors = FALSE)
+head(varStats)
+```
+
+```{r varSum}
+summary(varStats)
+```
+
+Let's find which data set produced the fewest SNPs:
+
+```{r varMin}
+min(varStats$FilteredSites)
+varStats$Dataset[[which.min(varStats$FilteredSites)]]
+```
+
+And which produced the most:
+
+```{r varMax}
+max(varStats$FilteredSites)
+varStats$Dataset[[which.max(varStats$FilteredSites)]]
+```
+
+Do these match with our thinking of the most stringent and least stringent filtering parameters? Yes - the data sets with the fewest SNPs (two with exact same number) are filtered to a minimum of 5X coverage, 0.1 site missingness allowed, LD filtering of R2 = 0.4, and minimum genotype quality of 10 or 20.  It actually appears that minGQ isn't having any effect on the total number of SNPs. The data sets producing the most SNPs after filtering are those least stringently filtered - 4X coverage, 0.2 site missingness allowed, and no LD filtering.
+
+```{r varPlot}
+ggplot(varStats, aes(x=as.factor(ID), y=FilteredSites, col=as.factor(minDP), shape=as.factor(LDR2))) +
+  geom_point()  +
+  labs(x="Dataset", y="Total SNPs retained") +
+  theme_bw() 
+```
