@@ -3,13 +3,13 @@
 #SBATCH -J pre-filt
 #SBATCH -c 16
 #SBATCH --mem=2G
-#SBATCH --time=02:30:00 #2:30:00 for full pipeline #Walltime (HH:MM:SS)
+#SBATCH --time=04:00:00 #2:30:00 for full pipeline #Walltime (HH:MM:SS)
 #SBATCH --output=%x.%j.out
 #SBATCH --error=%x.%j.err
 
 # Prepping vcfs for filtering
-bcfdir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/05-variant-calling/ #bcf file directory
-samplist=/nesi/nobackup/ga03186/kuaka-pop-gen/output/04-mapped/bam/samplist.txt
+bcfdir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/05-variant-calling-b/ #bcf file directory
+samplist=/nesi/nobackup/ga03186/kuaka-pop-gen/output/04-mapped/bam/samplist-2.txt
 
 ml purge
 ml BCFtools/1.15.1-GCC-11.3.0
@@ -21,8 +21,8 @@ do
 	base=$(basename $file .vcf)
 	echo Processing ${file}
 	# reheader each chunked bcf so it has the correct sample name
-	bcftools reheader -s ${samplist} ${file} -o ${bcfdir}${base}_reheader.bcf
-	wait
+#	bcftools reheader -s ${samplist} ${file} -o ${bcfdir}${base}_reheader.bcf
+#	wait
 
 	#echo compressing ${file}
         bgzip -c ${bcfdir}${base}.vcf > ${bcfdir}${base}.bcf.gz

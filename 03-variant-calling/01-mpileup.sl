@@ -1,16 +1,16 @@
 #!/bin/bash -e
 #SBATCH -A ga03186
 #SBATCH -J mpileup
-#SBATCH -c 32
-#SBATCH --mem=12G
-#SBATCH --time=06:00:00 #Walltime (HH:MM:SS) 
+#SBATCH -c 16
+#SBATCH --mem=6G
+#SBATCH --time=1-12:00:00 #Walltime (HH:MM:SS) 
 #SBATCH --output=%x.%j.out
 #SBATCH --error=%x.%j.err
 
 ref=/nesi/nobackup/ga03186/kuaka-genome/05-scaffolding/05_yahs/01-kuaka-hifiasm-p_ctg-purged-yahs_scaffolds_final.fa
 bamdir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/04-mapped/bam/
-bcfdir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/05-variant-calling/ # output bcf file directory
-samplist=/nesi/nobackup/ga03186/kuaka-pop-gen/output/04-mapped/bam/samplist.txt
+bcfdir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/05-variant-calling-b/ # output bcf file directory
+samplist=/nesi/nobackup/ga03186/kuaka-pop-gen/output/04-mapped/bam/samplist-2.txt
 platform="Illumina"
 
 ml purge
