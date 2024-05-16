@@ -10,7 +10,7 @@
 ###########
 # PARAMS
 # need to make new fq_list for BAM files
-BAMLIST=redo-samplist.txt
+BAMLIST=samplist.txt
 BAMDIR=/nesi/nobackup/ga03186/kuaka-pop-gen/output/04-mapped/bam/
 
 # MODULES
