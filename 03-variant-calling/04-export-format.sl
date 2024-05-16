@@ -4,7 +4,7 @@
 #SBATCH -J conversion
 #SBATCH --cpus-per-task=2
 #SBATCH --mem 8G
-#SBATCH --time=01:00:00
+#SBATCH --time=00:20:00
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=forsdickn@landcareresearch.co.nz
 #SBATCH --output %x.%j.out
