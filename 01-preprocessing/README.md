@@ -15,7 +15,7 @@ The spread of sequence depth led us to partition the sample data into 'large', '
 
 ## Example formats for sample lists used as input
 
-### Example format of `SAMPLE_LIST` for 01-fastqc-large-array.sl and 02-trimgalore.sl
+### `SAMPLE_LIST` for [01-fastqc-large-array.sl](01-fastqc-large-array.sl) and [02-trimgalore.sl](02-trimgalore.sl)
 
 This is a list of FASTQ files for all samples, split based on size into `small`/`mid`/`large-fastq.txt`.
 
@@ -27,7 +27,7 @@ sequenceID2-sampleID2_L002_R1_001.fastq.gz
 ...
 ```
 
-### Example format of `samplist` for 04-subsamp.sl 
+### `samplist` for [04-subsamp.sl](04-subsamp.sl) 
 
 This is a list of the FASTQ outputs of trimgalore for those samples that produced substantially higher sequencing depth than the mean, in `subsamp-in.txt`.
 

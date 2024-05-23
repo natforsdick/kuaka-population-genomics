@@ -29,13 +29,13 @@ do
 	echo indexing ${file}
 	tabix ${bcfdir}${base}.bcf.gz
 	# put bcf files names into a list for concatenation
-	ls ${bcfdir}${base}.bcf.gz >> ${bcfdir}bcf-list.txt
+	ls ${bcfdir}${base}.bcf.gz >> ${bcfdir}bcflist.txt
 done
 
 # concatenate the chunked bcf files into a whole population bcf
 echo concatenating
 # -a allow overlaps, -D remove exact duplicates (outputs a single record for any duplicates
-bcftools concat --file-list ${bcfdir}bcf-list.txt -a -D -O b -o ${bcfdir}Petrel_VariantCalls_concat.bcf --threads 24
+bcftools concat --file-list ${bcfdir}bcflist.txt -a -D -O b -o ${bcfdir}Petrel_VariantCalls_concat.bcf --threads 24
 
 # now let's sort the resultant bcf
 ml purge; ml BCFtools/1.19-GCC-11.3.0

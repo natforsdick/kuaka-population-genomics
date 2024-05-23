@@ -14,7 +14,7 @@ In this section, we map the trimmed, merged fastq data against the reference gen
 * `fq_list`: list of input trimmed merged data for each sample found in the input directory `INDIR` in FASTQ format
 
 
-### Example `fq_list` file
+### Example `fq_list` file for [02-readgroup-mapping.sl](02-readgroup-mapping.sl)
 
 ```
 ./sampleID1_val_1.fq.gz
@@ -23,7 +23,7 @@ In this section, we map the trimmed, merged fastq data against the reference gen
 ...
 ```
 
-### Example `BAMLIST` for `03-merge-stats.sl`
+### Example `BAMLIST` for [03-merge-stats.sl](03-merge-stats.sl)
 
 ```
 /path/to/04-mapped/bam/sampleID1.aligned.sorted.bam

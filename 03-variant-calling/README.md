@@ -18,9 +18,9 @@ Here we split mapped outputs into chunks for efficient processing through the BC
 
 ## Example list files
 
-### `samplist.txt` for [01-mpileup.sl](01-mpileup.sl) and `02-pre-varfiltering.sl`
+### `samplist.txt` for [01-mpileup.sl](01-mpileup.sl) and [02-pre-varfiltering.sl](02-pre-varfiltering.sl)
 
-This file lists the aligned sorted BAM files for each sample produced by `02-readgroup-mapping.sl`.
+This file lists the aligned sorted BAM files for each sample produced by [02-readgroup-mapping.sl](../02-mapping/02-readgroup-mapping.sl).
 
 ```
 /path/to/04-mapped/bam/sampleID1.aligned.sorted.bam
@@ -29,9 +29,9 @@ This file lists the aligned sorted BAM files for each sample produced by `02-rea
 ...
 ```
 
-### `bcflist.txt` for `02-pre-varfiltering.sl`
+### `bcflist.txt` for [02-pre-varfiltering.sl](02-pre-varfiltering.sl)
 
-This file lists the BCF files for each chunk produced in `01-mpileup.sl`, and is automatically produced during `02-pre-varfiltering.sl`.  
+This file lists the BCF files for each chunk produced in [01-mpileup.sl](01-mpileup.sl), and is automatically produced during [02-pre-varfiltering.sl](02-pre-varfiltering.sl).  
 
 ```
 /path/to/05-variant-calling/species_1_raw_VariantCalls.bcf.gz
@@ -40,7 +40,7 @@ This file lists the BCF files for each chunk produced in `01-mpileup.sl`, and is
 ...
 ```
 
-### `bcflist.txt` for `04-export-format.sl`
+### `bcflist.txt` for [04-export-format.sl](04-export-format.sl)
 
 This file lists the filtered BCF outputs. To make this file:
 
