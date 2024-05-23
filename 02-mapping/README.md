@@ -2,12 +2,19 @@
 
 In this section, we map the trimmed, merged fastq data against the reference genome. We then collect mapping statistics. Both mapping and collecting stats are run via arrays.
 
+## Software
+
+* BWA/0.7.17
+* SAMtools/1.10
+
+## Inputs
+
 * `reffile`: reference genome in FASTA format
 * `refdir`: location of reference genome
 * `fq_list`: list of input trimmed merged data for each sample found in the input directory `INDIR` in FASTQ format
 
 
-## Example `fq_list` file
+### Example `fq_list` file
 
 ```
 ./sampleID1_val_1.fq.gz
@@ -16,7 +23,7 @@ In this section, we map the trimmed, merged fastq data against the reference gen
 ...
 ```
 
-## Example `BAMLIST` for `03-merge-stats.sl`
+### Example `BAMLIST` for `03-merge-stats.sl`
 
 ```
 /path/to/04-mapped/bam/sampleID1.aligned.sorted.bam
