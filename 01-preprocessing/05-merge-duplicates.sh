@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-# merge the double-sequenced fastqs with their respective parents
+# merge the samples sampled in duplicate so replicate fastqs are combined 
 cd /nesi/nobackup/ga03186/kuaka-pop-gen/output//03-merged/
 
 cat EXT041-03_S3_val_1.fq.gz D206935_S38_val_1.fq.gz > D206935_S38_EXT041-03_S3_val_1.fq.gz
