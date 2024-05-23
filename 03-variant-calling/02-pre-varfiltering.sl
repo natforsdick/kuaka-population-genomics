@@ -2,8 +2,8 @@
 #SBATCH -A ga03186
 #SBATCH -J pre-filt
 #SBATCH -c 16
-#SBATCH --mem=2G
-#SBATCH --time=04:00:00 #2:30:00 for full pipeline #Walltime (HH:MM:SS)
+#SBATCH --mem=4G
+#SBATCH --time=054:00:00 #2:30:00 for full pipeline #Walltime (HH:MM:SS)
 #SBATCH --output=%x.%j.out
 #SBATCH --error=%x.%j.err
 
@@ -37,3 +37,9 @@ echo concatenating
 # -a allow overlaps, -D remove exact duplicates (outputs a single record for any duplicates
 bcftools concat --file-list ${bcfdir}bcf-list.txt -a -D -O b -o ${bcfdir}Petrel_VariantCalls_concat.bcf --threads 24
 
+# now let's sort the resultant bcf
+ml purge; ml BCFtools/1.19-GCC-11.3.0
+TMPDIR=${bcfdir}temp
+mkdir -p $TMPDIR
+
+bcftools sort --tmp-dir $TMPDIR -O b -o ${bcfdir}Petrel_VariantCalls_concat_sort.bcf ${bcfdir}Petrel_VariantCalls_concat.bcf

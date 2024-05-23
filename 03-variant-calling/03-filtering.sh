@@ -5,10 +5,10 @@ INDIR=/nesi/nobackup/ga03186/kuaka-pop-gen/output/05-variant-calling-b/ #directo
 vcf_out=${INDIR}filter-trial/
 noLD=${vcf_out}noLD/
 LD=${vcf_out}LD-filter/
-INBCF=Petrel_VariantCalls_concat.bcf
+INBCF=Petrel_VariantCalls_concat_sort.bcf
 STATSDIR=/nesi/nobackup/ga03186/kuaka-pop-gen/output/05-variant-calling-b/filter-trial/stats/
 
-ml purge 
+ml purge
 ml VCFtools/0.1.15-GCC-9.2.0-Perl-5.30.1
 
 cd $INDIR
@@ -17,7 +17,7 @@ mkdir -p $vcf_out $noLD $LD $STATSDIR
 #for loop to filter file with different values for parameters including
 #missingness, depth, and GQ
 
-base=$(basename ${INBCF} _concat.bcf)
+base=$(basename ${INBCF} _concat_sort.bcf)
 
 #for i in {4..5} #filtering files for 4x and 5x depth
 
