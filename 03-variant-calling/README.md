@@ -13,12 +13,12 @@ Here we split mapped outputs into chunks for efficient processing through the BC
 
 ## Inputs
 
-`ref`: `/path/to/reference-genome.fa`
-`INBCF`: The all-sample BCF output from `02-pre-varfiltering.sl`
+* `ref`: `/path/to/reference-genome.fa`
+* `INBCF`: The all-sample BCF output from `02-pre-varfiltering.sl`
 
 ## Example list files
 
-### `samplist.txt` for `01-mpileup.sl` and `02-pre-varfiltering.sl`
+### `samplist.txt` for [01-mpileup.sl](01-mpileup.sl) and `02-pre-varfiltering.sl`
 
 This file lists the aligned sorted BAM files for each sample produced by `02-readgroup-mapping.sl`.
 
