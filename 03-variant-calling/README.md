@@ -152,33 +152,31 @@ We know that with 67 individuals, the maximum number of alleles is technically 1
 Then in R:
 
 ```r
-maf <- read.delim("./MAF.txt")
+maf <- read.delim("./MAF.txt", header=FALSE)
 head(maf)
 
 summary(maf)
 
 # plot MAF distribution
+# we expect a bimodal distribution, so we need to set prob=TRUE to get the line to fit correctly
 
-w <- maf$XXX
-
-h<-hist(w, breaks=20, col="red", xlab="Raw read depth per variant",
-   main="MAF: Histogram with Normal Curve")
-xfit<-seq(min(w),max(w),length=40)
-yfit<-dnorm(xfit,mean=mean(w),sd=sd(w))
-yfit <- yfit*diff(h$mids[1:2])*length(w)
-lines(xfit, yfit, col="blue", lwd=2)
-
+h<-hist(maf$V1, breaks=50, col="grey", xlab="Raw read depth per variant",
+   main="MAF: Histogram with Normal Curve", prob=TRUE, ylim=c(0,15))
+lines(density(maf$V1), col = "darkgreen") 
 
 # get total number of variants
 a <- nrow(maf)
 
 # let's see how much data we retain at different MAF cutoffs
-b <- nrow(rawstats[maf$XXX>0.001, ])
+b <- sum(maf>0.001)
 # calculate this as a percentage of variants retained
 b/a*100
 
-# replace 56 with your mean MQ value
-e <- nrow(rawstats[rawstats$MQ>0.01, ])
+e <- sum(maf>0.01)
+# calculate this as a percentage of variants retained
+e/a*100
+
+e <- sum(maf>0.05)
 # calculate this as a percentage of variants retained
 e/a*100
 ```
