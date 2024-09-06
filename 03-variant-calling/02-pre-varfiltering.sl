@@ -42,4 +42,4 @@ ml purge; ml BCFtools/1.19-GCC-11.3.0
 TMPDIR=${bcfdir}temp
 mkdir -p $TMPDIR
 
-bcftools sort --tmp-dir $TMPDIR -O b -o ${bcfdir}Petrel_VariantCalls_concat_sort.bcf ${bcfdir}Petrel_VariantCalls_concat.bcf
+bcftools sort --temp-dir $TMPDIR -O b -o ${bcfdir}Petrel_VariantCalls_concat_sort.bcf ${bcfdir}Petrel_VariantCalls_concat.bcf
