@@ -22,7 +22,7 @@ ref=$refdir$reffile
 indir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/03-merged/
 outdir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/mitogenomes/
 
-grpname=KWH-mito #name of this group of samples
+grpname=all-mito #name of this group of samples
 projectdir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/mitogenomes/
 grpcalldir="call_group_genotypes"
 
@@ -35,11 +35,11 @@ filtertype="hard"
 # Hard filters SHOULD BE EXAMINED AND ADAPTED according to the dataset; further discussion can be found on GATK's site: software.broadinstitute.org/gatk/guide/article?id=6925
 
 MQthreshold="40.0" #the quality threshold for filtering - should be specific to the group # set to 40 initially, can reduce this if required.
-call="no" #either yes or [anything else]. If "yes", variants will be called from sample BAMs. If it is not yes, existing sample VCFs will be used.
+call="yes" #either yes or [anything else]. If "yes", variants will be called from sample BAMs. If it is not yes, existing sample VCFs will be used.
 
 # a list containing sample names as they were processed in 02-mito-mapping.sl
-samplist=$(cat ${indir}mitolist-KWH.txt)
-vcflist=${outdir}KWH-vcf.list
+samplist=$(cat ${indir}mitolist-nolow.txt)
+vcflist=${outdir}all-nolow-vcf.list
 ####################
 
 cd $outdir

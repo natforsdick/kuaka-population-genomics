@@ -38,8 +38,8 @@ MQthreshold="40.0" #the quality threshold for filtering - should be specific to 
 call="yes" #either yes or [anything else]. If "yes", variants will be called from sample BAMs. If it is not yes, existing sample VCFs will be used.
 
 # a list containing sample names as they were processed in 02-mito-mapping.sl
-samplist=$(cat ${indir}mitolist-KWH.txt)
-vcflist=${outdir}KWH2-vcf.list
+samplist=$(cat ${indir}mitolist-KWH-nolow.txt)
+vcflist=${outdir}KWH-nolow-vcf.list
 ####################
 
 cd $outdir

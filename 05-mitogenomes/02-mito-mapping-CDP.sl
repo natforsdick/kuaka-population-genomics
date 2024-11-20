@@ -3,10 +3,10 @@
 #SBATCH -J mitogenome-mapping
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=22G 
-#SBATCH -t 6:00:00 # initially 2:20 to get through the bulk of the samples (not including unzipping)
+#SBATCH -t 4:00:00 # initially 2:20 to get through the bulk of the samples (not including unzipping)
 #SBATCH --out %x.%j.%a.out
 #SBATCH --err %x.%j.%a.err
-#SBATCH --array=1-28%7 #1-28%8 # test with a small handful to start
+#SBATCH --array=25 #1-10 #28%7 #1-28%8 # test with a small handful to start
 
 # Extracting mitogenomes from short-read WGS data
 # This script expects a make_coverage_plots Rscript to be in the processing directory

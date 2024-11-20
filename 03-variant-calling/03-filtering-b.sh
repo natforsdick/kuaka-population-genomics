@@ -2,11 +2,11 @@
 # run as: "bash 03-filtering.sh &> filtering-out.txt"
 
 INDIR=/nesi/nobackup/ga03186/kuaka-pop-gen/output/05-variant-calling-b/ #directory where files to filter are
-vcf_out=${INDIR}filter-trial/
-noLD=${vcf_out}noLD/
-LD=${vcf_out}LD-filter/
+vcf_out=${INDIR}filter-trial-b/
+noLD=${vcf_out}noLD-b/
+LD=${vcf_out}LD-filter-b/
 INBCF=Petrel_VariantCalls_concat_sort.bcf
-STATSDIR=/nesi/nobackup/ga03186/kuaka-pop-gen/output/05-variant-calling-b/filter-trial/stats/
+STATSDIR=/nesi/nobackup/ga03186/kuaka-pop-gen/output/05-variant-calling-b/filter-trial-b/stats/
 
 ml purge
 ml VCFtools/0.1.15-GCC-9.2.0-Perl-5.30.1
@@ -16,12 +16,13 @@ mkdir -p $vcf_out $noLD $LD $STATSDIR
 
 #for loop to filter file with different values for parameters including
 #missingness, depth, and GQ
+# other options if the relevant stats are included in the VCF
 
 base=$(basename ${INBCF} _concat_sort.bcf)
 
-#for i in {4..5} #filtering files for 4x and 5x depth
+for i in {4..5} 
+#filtering files for 134x and 268x depth
 
-for i in 5
 do
     echo "Filtering SNPs for ${base}...." 
     vcftools --bcf ${INBCF} \
@@ -29,8 +30,8 @@ do
         --minDP ${i} \
         --maxDP 200 \
         --max-missing 1 \
-        --maf 0.05 \
-        --minQ 30 \
+        --maf 0.015 \
+        --minQ 40 \
         --remove-indels \
 	--min-alleles 2 \
 	--max-alleles 2 \
@@ -42,8 +43,8 @@ do
         --minDP ${i} \
         --maxDP 200 \
         --max-missing 0.9 \
-        --maf 0.05 \
-        --minQ 30 \
+        --maf 0.015 \
+        --minQ 40 \
         --min-alleles 2 \
         --max-alleles 2 \
         --remove-indels \
@@ -55,98 +56,14 @@ do
         --minDP ${i} \
         --maxDP 200 \
         --max-missing 0.8 \
-        --maf 0.05 \
-        --minQ 30 \
+        --maf 0.015 \
+        --minQ 40 \
         --min-alleles 2 \
         --max-alleles 2 \
         --remove-indels \
         --remove-filtered-all \
         --recode-bcf \
         --recode-INFO-all 
-    vcftools --bcf ${INBCF} \
-        --out ${noLD}${base}_${i}x_coverage_0site_missing_MinGQ10.bcf \
-        --minDP ${i} \
-        --maxDP 200 \
-        --max-missing 1 \
-        --maf 0.05 \
-        --minQ 30 \
-        --minGQ 10 \
-        --min-alleles 2 \
-        --max-alleles 2 \
-        --remove-indels \
-        --remove-filtered-all \
-        --recode-bcf \
-        --recode-INFO-all 
-    vcftools --bcf ${INBCF} \
-        --out ${noLD}${base}_${i}x_coverage_0.1site_missing_MinGQ10.bcf \
-        --minDP ${i} \
-        --maxDP 200 \
-        --max-missing 0.9 \
-        --maf 0.05 \
-        --minQ 30 \
-        --minGQ 10 \
-        --min-alleles 2 \
-        --max-alleles 2 \
-        --remove-indels \
-        --remove-filtered-all \
-        --recode-bcf \
-        --recode-INFO-all 
-    vcftools --bcf ${INBCF} \
-        --out ${noLD}${base}_${i}x_coverage_0.2site_missing_MinGQ10.bcf \
-        --minDP ${i} \
-        --maxDP 200 \
-        --max-missing 0.8 \
-        --maf 0.05 \
-        --minQ 30 \
-        --minGQ 10 \
-        --min-alleles 2 \
-        --max-alleles 2 \
-        --remove-indels \
-        --remove-filtered-all \
-        --recode-bcf \
-        --recode-INFO-all 
-    vcftools --bcf ${INBCF} \
-        --out ${noLD}${base}_${i}x_coverage_0site_missing_MinGQ20.bcf \
-        --minDP ${i} \
-        --maxDP 200 \
-        --max-missing 1 \
-        --maf 0.05 \
-        --minQ 30 \
-        --minGQ 20 \
-        --min-alleles 2 \
-        --max-alleles 2 \
-        --remove-indels \
-        --remove-filtered-all \
-        --recode-bcf \
-        --recode-INFO-all 
-    vcftools --bcf ${INBCF} \
-        --out ${noLD}${base}_${i}x_coverage_0.1site_missing_MinGQ20.bcf \
-        --minDP ${i} \
-        --maxDP 200 \
-        --max-missing 0.9 \
-        --maf 0.05 \
-        --minQ 20 \
-        --minGQ 30 \
-        --min-alleles 2 \
-        --max-alleles 2 \
-        --remove-indels \
-        --remove-filtered-all \
-        --recode-bcf \
-        --recode-INFO-all 
-    vcftools --bcf ${INBCF} \
-        --out ${noLD}${base}_${i}x_coverage_0.2site_missing_MinGQ20.bcf \
-        --minDP ${i} \
-        --maxDP 200 \
-        --max-missing 0.8 \
-        --maf 0.05 \
-        --minQ 30 \
-        --minGQ 20 \
-        --min-alleles 2 \
-        --max-alleles 2 \
-        --remove-indels \
-        --remove-filtered-all \
-        --recode-bcf \
-        --recode-INFO-all
 done
 wait
 

@@ -8,7 +8,7 @@
 # variables to change 
 # location of the FASTA reference file
 refdir=/nesi/nobackup/ga03186/kuaka-genome/mitohifi/
-reffile=NC_052809.1-P-urinatrix-mitogenome.fasta
+reffile=NC_052809.1-P-urinatrix-mitogenome-50bprem.fasta
 ref=$refdir$reffile
 #name of this group of samples
 grpname=CDP-mito
@@ -25,7 +25,7 @@ mtchr="NC_052809.1"
 #these sample names currently should be in double quotes (around all) and separated by whitespace (spaces or tabs)
 # samplist containing list of file prefixes for the trimmed short-read data
 indir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/03-merged/
-samplist=${indir}mitolist-CDP.txt
+samplist=${indir}mitolist-CDP-nolow.txt
 
 #variables that shouldn't need changing
 bamlist=$grpname.bam.list

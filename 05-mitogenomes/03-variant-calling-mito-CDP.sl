@@ -15,7 +15,7 @@
 #variables 
 # the name and location of the target mitosequence 
 refdir=/nesi/nobackup/ga03186/kuaka-genome/mitohifi/
-reffile=NC_052809.1-P-urinatrix-mitogenome.fasta
+reffile=NC_052809.1-P-urinatrix-mitogenome-50bprem.fasta
 ref=$refdir$reffile
 
 # path to trimmed shot-read data
@@ -38,7 +38,7 @@ MQthreshold="40.0" #the quality threshold for filtering - should be specific to 
 call="yes" #either yes or [anything else]. If "yes", variants will be called from sample BAMs. If it is not yes, existing sample VCFs will be used.
 
 # a list containing sample names as they were processed in 02-mito-mapping.sl
-samplist=$(cat ${indir}mitolist-CDP.txt)
+samplist=$(cat ${indir}mitolist-CDP-nolow.txt)
 vcflist=${outdir}CDP-vcf.list
 ####################
 

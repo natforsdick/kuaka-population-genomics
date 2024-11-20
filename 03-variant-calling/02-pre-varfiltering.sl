@@ -3,7 +3,7 @@
 #SBATCH -J pre-filt
 #SBATCH -c 16
 #SBATCH --mem=4G
-#SBATCH --time=054:00:00 #2:30:00 for full pipeline #Walltime (HH:MM:SS)
+#SBATCH --time=4:00:00 #2:30:00 for full pipeline #Walltime (HH:MM:SS)
 #SBATCH --output=%x.%j.out
 #SBATCH --error=%x.%j.err
 

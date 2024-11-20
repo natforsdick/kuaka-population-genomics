@@ -11,9 +11,9 @@ refdir=/nesi/nobackup/ga03186/kuaka-genome/mitohifi/
 reffile=kuaka_final_mitogenome-80bprem.fasta
 ref=$refdir$reffile
 #name of this group of samples
-grpname=all-mito
+grpname=KWH-mito
 #project directory where input vcfs are
-projectdir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/mitogenomes/
+projectdir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/mitogenomes/KWH/
 #the ploidy of the data (eg, 1 for mitochondria, 2 for autosomal)
 ploidy=1
 #the MINIMUM coverage allowed to call a base for these samples (eg, if set to 1, all bases covered by 1 or more reads will be in FASTA)
@@ -25,12 +25,12 @@ mtchr="D212900-mitogenome"
 #these sample names currently should be in double quotes (around all) and separated by whitespace (spaces or tabs)
 # samplist containing list of file prefixes for the trimmed short-read data
 indir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/03-merged/
-samplist=${indir}mitolist-nolow.txt
+samplist=${indir}mitolist-KWH-nolow.txt
 
 #variables that shouldn't need changing
 bamlist=$grpname.bam.list
 #oneunder=$((mincoverage - 1))
-gencalldir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/mitogenomes/call_genotypes-all/
+gencalldir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/mitogenomes/KWH/call_genotypes-KWH-only/
 grpcalldir="call_group_genotypes/"
 #specify the name of the BAM file to call from
 bamprefix="_remdup.bam"
@@ -143,7 +143,7 @@ do
         #run the script to create a min-cov vcf
         echo "running the min.cov script for coverage $cov"
         module purge; module load R/4.3.1-gimkl-2022a
-        Rscript /nesi/project/ga03186/kuaka-pop-gen/05-mitogenomes/filter_cover_for_vcfs.R ${projectdir}coverage/${samp}_coverage.txt $samp.nohead.vcf $cov
+        Rscript /nesi/project/ga03186/kuaka-pop-gen/05-mitogenomes/filter_cover_for_vcfs.R ${projectdir}../coverage/${samp}_coverage.txt $samp.nohead.vcf $cov
 
         #recreate the vcf
         BPvcf=${samp}.g.forbam.vcf

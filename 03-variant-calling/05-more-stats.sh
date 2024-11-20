@@ -2,9 +2,9 @@
 # run as: "bash 03-filtering.sh &> filtering-out.txt"
 
 INDIR=/nesi/nobackup/ga03186/kuaka-pop-gen/output/05-variant-calling-b/ #directory where files to filter are
-vcf_out=${INDIR}filter-trial/
-noLD=${vcf_out}noLD/
-LD=${vcf_out}LD-filter/
+vcf_out=${INDIR}filter-trial-b/
+noLD=${vcf_out}noLD-b/
+LD=${vcf_out}LD-filter-b/
 
 STATSDIR=/nesi/nobackup/ga03186/kuaka-pop-gen/output/05-variant-calling-b/filter-trial/stats/
 

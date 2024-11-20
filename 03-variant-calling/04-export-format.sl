@@ -3,19 +3,19 @@
 #SBATCH -A ga03186
 #SBATCH -J conversion
 #SBATCH --cpus-per-task=2
-#SBATCH --mem 8G
-#SBATCH --time=00:20:00
+#SBATCH --mem 60G
+#SBATCH --time=01:30:00
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=forsdickn@landcareresearch.co.nz
 #SBATCH --output %x.%j.out
 #SBATCH --error %x.%j.err
 
-cd /nesi/nobackup/ga03186/kuaka-pop-gen/output/05-variant-calling-b/filter-trial/
+cd /nesi/nobackup/ga03186/kuaka-pop-gen/output/05-variant-calling-b/filter-trial-b/
 mkdir -p ./export/
 
 # make bcflist.txt
-# ls LD-filter/*.bcf > bcflist.txt
-# ls noLD/*.bcf >> bcflist.txt
+ls LD-filter-b/*.bcf > bcflist.txt
+ls noLD-b/*.bcf >> bcflist.txt
 
 ml purge
 ml BCFtools/1.10.2-GCC-9.2.0 Stacks/2.61-gimkl-2022a
