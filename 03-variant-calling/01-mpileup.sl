@@ -1,16 +1,16 @@
 #!/bin/bash -e
 #SBATCH -A ga03186
 #SBATCH -J mpileup
-#SBATCH -c 16
+#SBATCH -c 24
 #SBATCH --mem=6G
-#SBATCH --time=1-12:00:00 #Walltime (HH:MM:SS) 
+#SBATCH --time=2-12:00:00 #Walltime (HH:MM:SS) 
 #SBATCH --output=%x.%j.out
 #SBATCH --error=%x.%j.err
 
-ref=/nesi/nobackup/ga03186/kuaka-genome/05-scaffolding/05_yahs/01-kuaka-hifiasm-p_ctg-purged-yahs_scaffolds_final.fa
-bamdir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/04-mapped/bam/
-bcfdir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/05-variant-calling-b/ # output bcf file directory
-samplist=/nesi/nobackup/ga03186/kuaka-pop-gen/output/04-mapped/bam/samplist-2.txt
+ref=/nesi/nobackup/ga03186/kuaka-genome/05-scaffolding/05b-Dovetail-OmniC/all-data-yahs/01-kuaka-hifiasm-p_ctg-purged-clean-omnic-mapped.PT-yahsNMC_scaffolds_final.fa
+bamdir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/04-mapped/20241210/bam/
+bcfdir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/05-variant-calling-20241210/ # output bcf file directory
+samplist=${bamdir}samplist.txt
 platform="Illumina"
 
 ml purge
@@ -26,17 +26,17 @@ if [ ! -e ${bcfdir}chunks/ ]; then
 	mkdir -p ${bcfdir}chunks
 fi
 
-#chunk bam files into 12 pieces using custom perl script 
+#chunk bam files into 14 pieces using custom perl script 
 #@Lanilen/SubSampler_SNPcaller/split_bamfiles_tasks.pl
 #chunked files will help mpileup run faster
-echo chunking
-perl /nesi/project/ga03186/kuaka-pop-gen/03-variant-calling/split_bamfiles_tasks.pl -b ${samplist} -g $ref -n 12 -o ${bcfdir}chunks | parallel -j 12 {}
+#echo chunking
+#perl /nesi/project/ga03186/kuaka-pop-gen/03-variant-calling/split_bamfiles_tasks.pl -b ${samplist} -g $ref -n 14 -o ${bcfdir}chunks | parallel -j 12 {}
 
 #echo chunking complete
 #run bcftools mpileup in parallel on chunks of bam files with BCFtools v 1.11
 echo running mpileup
-for (( i=1; i<=12; i++ )); do
-        bcftools mpileup -E -O b -f $ref -a AD,ADF,DP,ADR,SP -o ${bcfdir}kuaka_${i}_raw.bcf ${bcfdir}chunks/${i}/* &
+for (( i=1; i<=14; i++ )); do
+        bcftools mpileup -E -O b --threads 2 -f $ref -a AD,ADF,DP,ADR,SP -o ${bcfdir}kuaka_${i}_raw.bcf ${bcfdir}chunks/${i}/* &
 done
 wait
 echo mpileup complete
@@ -45,7 +45,7 @@ echo mpileup complete
 for file in ${bcfdir}*.bcf
 	do
 	base=$(basename $file .bcf)
-	bcftools call $file --threads 24 -mv -O v -o ${bcfdir}${base}_VariantCalls.vcf &
+	bcftools call $file --threads 32 -f GQ,GP -mv -O v -o ${bcfdir}${base}_VariantCalls.vcf &
 done
 wait
 echo variant calling is complete

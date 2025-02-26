@@ -1,17 +1,16 @@
 #!/bin/bash -e
-#SBATCH -J bwa
+#SBATCH -J bwa-left
 #SBATCH -A ga03186
-#SBATCH --time=02:30:00 
-#SBATCH --mem=28G 
+#SBATCH --time=02:00:00
+#SBATCH --mem=28G
 #SBATCH --cpus-per-task=32
-#SBATCH --array=1-2 #14%7 # Tailor to samp number
+#SBATCH --array=2 #-18%6 # Tailor to samp number
 #SBATCH --out=%x.%j.out
 #SBATCH --err=%x.%j.err
 
-
 # MODULES
 module purge
-module load  BWA/0.7.17-GCC-9.2.0 SAMtools/1.10-GCC-9.2.0
+module load BWA/0.7.17-GCC-9.2.0 SAMtools/1.10-GCC-9.2.0
 module list
 
 ###########
@@ -20,13 +19,13 @@ module list
 # need to make new fq_list for trimgalore outputs
 fq_list=/nesi/nobackup/ga03186/kuaka-pop-gen/output/03-merged/merged-samplist.txt
 
-reffile=01-kuaka-hifiasm-p_ctg-purged-yahs_scaffolds_final
-refdir=/nesi/nobackup/ga03186/kuaka-genome/05-scaffolding/05_yahs/
+reffile=01-kuaka-hifiasm-p_ctg-purged-clean-omnic-mapped.PT-yahsNMC_scaffolds_final
+refdir=/nesi/nobackup/ga03186/kuaka-genome/05-scaffolding/05b-Dovetail-OmniC/all-data-yahs/
 ref=$refdir$reffile
 
 INDIR=/nesi/nobackup/ga03186/kuaka-pop-gen/output/03-merged/
-SAMDIR=/nesi/nobackup/ga03186/kuaka-pop-gen/output/04-mapped/sam/
-BAMDIR=/nesi/nobackup/ga03186/kuaka-pop-gen/output/04-mapped/bam/
+SAMDIR=/nesi/nobackup/ga03186/kuaka-pop-gen/output/04-mapped/20241210/sam/
+BAMDIR=/nesi/nobackup/ga03186/kuaka-pop-gen/output/04-mapped/20241210/bam/
 fq1=_val_1.fq.gz #Read 1 suffix
 fq2=_val_2.fq.gz #Read 2 suffix
 # fq for subsampled large files

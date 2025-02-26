@@ -7,8 +7,8 @@
 #SBATCH --out=%x.%j.out
 #SBATCH --err=%x.%j.err
 
-reffile=01-kuaka-hifiasm-p_ctg-purged-yahs_scaffolds_final
-refdir=/nesi/nobackup/ga03186/kuaka-genome/05-scaffolding/05_yahs/
+reffile=01-kuaka-hifiasm-p_ctg-purged-clean-omnic-mapped.PT-yahsNMC_scaffolds_final
+refdir=/nesi/nobackup/ga03186/kuaka-genome/05-scaffolding/05b-Dovetail-OmniC/all-data-yahs/
 REF=$refdir$reffile
 
 ###########
