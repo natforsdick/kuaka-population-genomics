@@ -18,7 +18,7 @@ refdir=/nesi/nobackup/ga03186/kuaka-genome/mitohifi/
 reffile=NC_052809.1-P-urinatrix-mitogenome-50bprem.fasta
 ref=$refdir$reffile
 
-# path to trimmed shot-read data
+# path to trimmed short-read data
 indir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/03-merged/
 outdir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/mitogenomes/CDP/
 

@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-# prepping the reference file
+# prepping the mitogenome reference files
 
 ####################
 # variables

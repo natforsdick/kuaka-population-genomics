@@ -3,10 +3,10 @@
 #SBATCH -J mitogenome-mapping
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=22G 
-#SBATCH -t 4:00:00 # initially 2:20 to get through the bulk of the samples (not including unzipping)
+#SBATCH -t 4:00:00 # initially 2:20 to get through the bulk of the samples (excluding decompression) - up to 8 hrs for large input files
 #SBATCH --out %x.%j.%a.out
 #SBATCH --err %x.%j.%a.err
-#SBATCH --array=25 #1-10 #28%7 #1-28%8 # test with a small handful to start
+#SBATCH --array=1-27%8 # test with a small handful to start
 
 # Extracting mitogenomes from short-read WGS data
 # This script expects a make_coverage_plots Rscript to be in the processing directory
@@ -19,7 +19,7 @@ refdir=/nesi/nobackup/ga03186/kuaka-genome/mitohifi/
 reffile=NC_052809.1-P-urinatrix-mitogenome-50bprem.fasta
 ref=$refdir$reffile
 
-# path to trimmed shot-read data
+# path to trimmed short-read data
 indir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/03-merged/
 outdir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/mitogenomes/CDP/
 cd $outdir

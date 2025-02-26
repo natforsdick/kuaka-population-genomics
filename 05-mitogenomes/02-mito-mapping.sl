@@ -6,7 +6,7 @@
 #SBATCH -t 4:00:00 # initially 2:20 to get through the bulk of the samples
 #SBATCH --out %x.%j.%a.out
 #SBATCH --err %x.%j.%a.err
-#SBATCH --array=69#1-69%8 # test with a small handful to start
+#SBATCH --array=1-67%8 # test with a small handful to start
 
 # Extracting mitogenomes from short-read WGS data
 # This script expects a make_coverage_plots Rscript to be in the processing directory
@@ -19,7 +19,7 @@ refdir=/nesi/nobackup/ga03186/kuaka-genome/mitohifi/
 reffile=kuaka_final_mitogenome-80bprem.fasta
 ref=$refdir$reffile
 
-# path to trimmed shot-read data
+# path to trimmed short-read data
 indir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/03-merged/
 outdir=/nesi/nobackup/ga03186/kuaka-pop-gen/output/mitogenomes/
 cd $outdir
